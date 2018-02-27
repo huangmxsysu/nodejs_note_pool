@@ -1,6 +1,6 @@
 var Layer = require('./layer.js');
 var Route = require('./route.js');
-
+var http = require('http');
 
 var Router = function () {
   //stack属性
@@ -33,11 +33,14 @@ Router.prototype.route = function(path){
   return route;
 }
 
-Router.prototype.get = function(path, fn) {
-  var route = this.route(path);
-  route.get(fn);
+http.METHODS.forEach(function(method) {
+  method = method.toLowerCase();
+  Router.prototype[method] = function(path, fn) {
+    var route = this.route(path);
+    route[method].call(route, fn);
 
-  return this;
-};
+    return this;
+  };
+});
 
 exports = module.exports = Router;

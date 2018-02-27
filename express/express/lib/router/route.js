@@ -1,4 +1,5 @@
 var Layer = require('./layer.js');
+var http = require('http');
 
 var Route = function(path) {
     this.path = path;
@@ -22,15 +23,18 @@ Route.prototype.dispatch = function(req, res) {
   }
 };
 
-Route.prototype.get = function(fn) {
-  var layer = new Layer('/', fn); //path已经在route(path)加载到this.path了，这里就'/'
-  layer.method = 'get';
+http.METHODS.forEach(function(method) {
+  method = method.toLowerCase();
+  Route.prototype[method] = function(fn) {
+      var layer = new Layer('/', fn); //path已经在route(path)加载到this.path了，这里就'/'
+      layer.method = method;
 
-  this.methods['get'] = true;
-  this.stack.push(layer);
+      this.methods[method] = true;
+      this.stack.push(layer);
 
-  return this;  //链接效果
-};
+      return this;  //链接效果
+  };
+});
 
 
 exports = module.exports = Route;
